@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# git-work
+#
+# env-reset
+# reset environment variables to prevent interference
+
+export GREP_OPTIONS=
