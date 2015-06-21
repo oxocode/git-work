@@ -33,8 +33,8 @@ Alternatively, clone this repository into a directory and add it to the `PATH` e
 
 ## Commands
 
-* git create-feature
-* git archive-feature
+* [git create-feature](https://github.com/oxocode/git-work/blob/master/man/git-create-feature.md)
+* [git archive-feature](https://github.com/oxocode/git-work/blob/master/man/git-archive-feature.md)
 
 ## Commands _(otw)_
 
@@ -46,7 +46,6 @@ Just a few of the commands _(otw)_:
 * git cleanup
 * git compare-branches
 * git compare-repos
-* git create-feature
 * git find-repos
 * git last
 * git merge-feature

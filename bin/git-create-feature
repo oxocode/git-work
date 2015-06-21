@@ -6,7 +6,7 @@
 # Exit on error.
 set -o errexit
 
-featurebranch=feature/$1
+FEATUREBRANCH=feature/$1
 
 # If you forgot to provide a branch name, exit.
 test -z $1 && echo "Branch name required. Do over." 1>&2 && exit 1
@@ -16,10 +16,10 @@ if [ 'master' != "$1" ] && [ 'staging' != "$1" ] && [ 'develop' != "$1" ]; then
 	git checkout master
 	git fetch origin
 	git pull origin
-	git checkout -b $featurebranch
-	git push --set-upstream origin $featurebranch
+	git checkout -b $FEATUREBRANCH
+	git push --set-upstream origin $FEATUREBRANCH
 	echo "==========================================================="
-	echo "Ready: ${featurebranch}"
+	echo "Ready: ${FEATUREBRANCH}"
 else
 	echo "Attempting to use a protected branch name. Don't. Do over."
 fi

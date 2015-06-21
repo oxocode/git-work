@@ -9,62 +9,64 @@ set -o errexit
 # ask
 # checks the prompt for yes or no responses.
 # @TODO: Move this to the helpers later.
-ask () {
-    echo "$1"
-    local ans PS3="> "
-    select ans in Yes No; do
-        [[ $ans == Yes ]] && return 0
-        [[ $ans == No ]] && return 1
+ask() {
+    while true; do
+        read -p "$1 " yn
+        case $yn in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
     done
 }
 
-featurebranch=$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3,4)
+FEATUREBRANCH=$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3,4)
 
-# If you forgot to provide a branch name, exit.
-#test -z $1 && echo "Branch name required. Do over." 1>&2 && exit 1
-
-if [ '' == "$featurebranch" ]; then
+# If you are not on a feature branch, exit.
+if [ '' == "$FEATUREBRANCH" ]; then
 
     echo "Branch name required."
-
-# If current branch is not named master, staging, or develop, keep going.
-# This is not a game.
-elif [ 'master' = "$featurebranch" ] && [ 'staging' = "$featurebranch" ] && [ 'develop' = "$featurebranch" ]; then
-
-    echo "You're on $featurebranch. So !nope."
     exit
 
-# Let's archive any other branch.
-elif [ 'master' != "$featurebranch" ] && [ 'staging' != "$featurebranch" ] && [ 'develop' != "$featurebranch" ]; then
+# If current branch is named master, staging, or develop, you stop it right now.
+elif [ 'master' = "$FEATUREBRANCH" ] && [ 'staging' = "$FEATUREBRANCH" ] && [ 'develop' = "$FEATUREBRANCH" ]; then
 
-    echo "Pushing up the latest of ${featurebranch}..."
-    git push --set-upstream origin $featurebranch
+    echo "You're on $FEATUREBRANCH. So !nope."
+    exit
 
-    echo "Tagging ${featurebranch}..."
-    git tag archive/$featurebranch
+# If current branch is not named master, staging, or develop, archive it.
+elif [ 'master' != "$FEATUREBRANCH" ] && [ 'staging' != "$FEATUREBRANCH" ] && [ 'develop' != "$FEATUREBRANCH" ]; then
 
-    echo "Pushing 'archive/${featurebranch}' tag to origin..."
+    echo "Pushing up the latest of ${FEATUREBRANCH}..."
+    git push --set-upstream origin $FEATUREBRANCH
+
+    echo "Tagging ${FEATUREBRANCH}..."
+    git tag archive/$FEATUREBRANCH
+
+    echo "Pushing 'archive/${FEATUREBRANCH}' tag to origin..."
     git push origin --tags
 
     echo "Switching to branch master..."
     git checkout master
 
-    echo "Now, we can delete ${featurebranch}..."
+    echo "Now, we can delete ${FEATUREBRANCH}..."
 
     # I normally comment out these prompts, because I only archive feature branches
     # after it has been deployed & tested on production.
-    if [ 'master' != "$featurebranch" ] && [ 'staging' != "$featurebranch" ] && [ 'develop' != "$featurebranch" ]; then
-        if ask "Do you want to delete the local ${featurebranch} branch?" [Y/n]; then
+    if [ 'master' != "$FEATUREBRANCH" ] && [ 'staging' != "$FEATUREBRANCH" ] && [ 'develop' != "$FEATUREBRANCH" ]; then
+        if ask "Do you want to delete the local ${FEATUREBRANCH} branch?"; then
 
-            git branch -D $featurebranch --verbose
-            echo "Deleted local branch ${featurebranch}."
+            git branch -D $FEATUREBRANCH --verbose
+            echo "Deleted local branch ${FEATUREBRANCH}."
 
         fi
-        if ask "Do you want to delete the remote ${featurebranch} branch?" [Y/n]; then
+        if ask "Do you want to delete the remote ${FEATUREBRANCH} branch?"; then
 
-            git push origin :$featurebranch --verbose
-            echo "Deleted remote branch ${featurebranch}."
+            git push origin :$FEATUREBRANCH --verbose
+            echo "Deleted remote branch ${FEATUREBRANCH}."
 
         fi
     fi
+    echo "==========================================================="
+    echo "Archived: ${FEATUREBRANCH}"
 fi
