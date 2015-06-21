@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# git-work
+#
+# command: git archive-feature
+
+# Exit on error.
+set -o errexit
+
+# ask
+# checks the prompt for yes or no responses.
+# @TODO: Move this to the helpers later.
+ask () {
+    echo "$1"
+    local ans PS3="> "
+    select ans in Yes No; do
+        [[ $ans == Yes ]] && return 0
+        [[ $ans == No ]] && return 1
+    done
+}
+
+featurebranch=$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3,4)
+
+# If you forgot to provide a branch name, exit.
+#test -z $1 && echo "Branch name required. Do over." 1>&2 && exit 1
+
+if [ '' == "$featurebranch" ]; then
+
+    echo "Branch name required."
+
+# If current branch is not named master, staging, or develop, keep going.
+# This is not a game.
+elif [ 'master' = "$featurebranch" ] && [ 'staging' = "$featurebranch" ] && [ 'develop' = "$featurebranch" ]; then
+
+    echo "You're on $featurebranch. So !nope."
+    exit
+
+# Let's archive any other branch.
+elif [ 'master' != "$featurebranch" ] && [ 'staging' != "$featurebranch" ] && [ 'develop' != "$featurebranch" ]; then
+
+    echo "Pushing up the latest of ${featurebranch}..."
+    git push --set-upstream origin $featurebranch
+
+    echo "Tagging ${featurebranch}..."
+    git tag archive/$featurebranch
+
+    echo "Pushing 'archive/${featurebranch}' tag to origin..."
+    git push origin --tags
+
+    echo "Switching to branch master..."
+    git checkout master
+
+    echo "Now, we can delete ${featurebranch}..."
+
+    # I normally comment out these prompts, because I only archive feature branches
+    # after it has been deployed & tested on production.
+    if [ 'master' != "$featurebranch" ] && [ 'staging' != "$featurebranch" ] && [ 'develop' != "$featurebranch" ]; then
+        if ask "Do you want to delete the local ${featurebranch} branch?" [Y/n]; then
+
+            git branch -D $featurebranch --verbose
+            echo "Deleted local branch ${featurebranch}."
+
+        fi
+        if ask "Do you want to delete the remote ${featurebranch} branch?" [Y/n]; then
+
+            git push origin :$featurebranch --verbose
+            echo "Deleted remote branch ${featurebranch}."
+
+        fi
+    fi
+fi

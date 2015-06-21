@@ -34,13 +34,13 @@ Alternatively, clone this repository into a directory and add it to the `PATH` e
 ## Commands
 
 * git create-feature
+* git archive-feature
 
 ## Commands _(otw)_
 
 Just a few of the commands _(otw)_:
 
 * git ancestor
-* git archive-feature
 * git bean
 * git both-merged
 * git cleanup
