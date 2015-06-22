@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# git-work
+#
+# git merged
+#
+# @TODO: Make this less expensive / more efficient.
+
+# Exit on command error.
+set -o errexit
+
+set -e
+
+# usage
+#
+# Prints usage information.
+usage() {
+    echo "USAGE: git merged [-h | -help] [-r | --remote] [-l | --local] [-lr]"
+    exit 1
+}
+
+# default
+#
+# Prints local branches merged with master.
+#
+# Pass: -l or --local
+default() {
+    echo "Local branches merged with master:"
+    echo "==========================================================="
+    git branch --merged | grep -v "\*" | grep -v master | tr -d ' '
+}
+
+# local_origin
+#
+# Prints local branches merged with origin/master.
+#
+# Pass: -lr
+local_origin() {
+    echo "Local branches merged with origin/master:"
+    echo "==========================================================="
+    git branch --merged | grep -v "\*" | grep -v origin/master | tr -d ' '
+}
+
+# remote_origin
+#
+# Prints remote branches merged with origin/master.
+#
+# Pass: -r or --remote
+remote_origin() {
+    echo "Remote branches merged with origin/master:"
+    echo "==========================================================="
+    git branch --remote --merged | grep -v "\*" | grep -v origin/master | tr -d ' '
+}
+
+# doing_it_wrong
+#
+# Prints incorrect usage message if no flags are passed.
+doing_it_wrong() {
+    echo "Incorrect usage: Please include flags."
+    echo "==========================================================="
+    usage
+    exit
+}
+
+# if no user input / no flags passed, display doing_it_wrong.
+test -z $1 && doing_it_wrong 1>&2 && exit 1
+
+# all the work for git-merged.
+realargs="$@"
+while [ $# -gt 0 ]; do
+    case "$1" in
+      -h | -help)
+        usage
+        ;;
+      -r | --remote)
+        remote_origin
+        ;;
+
+      -lr)
+        local_origin
+        ;;
+      -l | --local)
+        default
+        ;;
+      *)
+        doing_it_wrong
+        ;;
+    esac
+    shift
+done
+set -- $realargs
+exit
