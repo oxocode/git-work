@@ -37,6 +37,7 @@ Alternatively, clone this repository into a directory and add it to the `PATH` e
 * [git archive-feature](https://github.com/oxocode/git-work/blob/master/man/git-archive-feature.md)
 * git last
 * git merged
+* git notmerged
 
 ## Commands _(otw)_
 
@@ -50,7 +51,6 @@ Just a few of the commands _(otw)_:
 * git compare-repos
 * git find-repos
 * git merge-feature
-* git unmerged
 * git when-merged
 * git work
 * git wtf
