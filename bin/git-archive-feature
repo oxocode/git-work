@@ -3,7 +3,7 @@
 #
 # command: git archive-feature
 
-# Exit on error.
+# Exit on command error.
 set -o errexit
 
 # ask
@@ -70,3 +70,4 @@ elif [ 'master' != "$FEATUREBRANCH" ] && [ 'staging' != "$FEATUREBRANCH" ] && [ 
     echo "==========================================================="
     echo "Archived: ${FEATUREBRANCH}"
 fi
+exit
