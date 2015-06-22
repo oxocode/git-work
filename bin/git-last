@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# git-work
+#
+# command: git last
+
+# Exit on error.
+set -o errexit
+
+LAST=-$1
+
+# If no number or the number 1 is entered, display last commit.
+if [ '' == "$1" ] || [ '1' == "$1" ]; then
+
+    LAST=-1
+    MSG="Displaying last commit:"
+
+# If a number is provided, display last x commits.
+else
+
+    MSG="Displaying last $1 commits:"
+
+fi
+
+echo "${MSG}"
+echo "==========================================================="
+git log $LAST 2> /dev/null
+exit
