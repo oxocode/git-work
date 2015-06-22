@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# git-work
+#
+# command: git new
+# Adding git new for brevity in creating new features, bugfixes, and hotfixes.
+# It may be easier for some to type `git new -f` to create new feature branches.
+#
+# @TODO: Update to use a git_current_branch function for the repetitive stuff.
+
+# Exit on command error.
+set -o errexit
+
+set -e
+
+# usage
+#
+# Prints usage information.
+usage() {
+    echo "USAGE: git new [-f | --feature] [--hotfix] [-b | --bugfix] <branchname>"
+    exit 1
+}
+
+# doing_it_wrong
+#
+# Prints incorrect usage message if no flags are passed.
+doing_it_wrong() {
+    echo "Incorrect usage: Please include flag and branchname."
+    echo "==========================================================="
+    usage
+    exit
+}
+
+# ask
+# checks the prompt for yes or no responses.
+ask() {
+    while true; do
+        read -p "$1 " yn
+        case $yn in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+# If you forgot to provide a branch name, exit.
+test -z $2 && doing_it_wrong 1>&2 && exit 1
+
+# Default feature branchname, jic.
+branchname=feature/$2
+
+# all the work for git-new.
+realargs="$@"
+while [ $# -gt 0 ]; do
+    case "$1" in
+      -h | -help)
+        usage
+        ;;
+      --hotfix)
+        branchname=hotfix/$2
+        ;;
+      -b | --bugfix)
+        branchname=bugfix/$2
+        ;;
+      -f | --feature)
+        branchname=feature/$2
+        ;;
+    esac
+    shift
+done
+set -- $realargs
+
+# current branch name.
+CURRENTBRANCH=$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3,4)
+
+# capturing the new branch name.
+FEATUREBRANCH=${branchname}
+
+    # If new feature is not named master, staging, or develop, keep going.
+    if [ 'master' != "$2" ] && [ 'staging' != "$2" ] && [ 'develop' != "$2" ]; then
+
+        # Because sometimes we need to branch from develop (sigh).
+        if ask "Branch from current branch (${CURRENTBRANCH})?"; then
+            echo "Branching from ${CURRENTBRANCH}..."
+        else
+            echo "Branching from master...(good job!)"
+            git checkout master
+        fi
+        PWB=$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3,4)
+        # Because sometimes we forget to branch before working.
+        if ask "Pull changes into (${PWB}) branch?"; then
+            git fetch origin
+            git pull origin ${CURRENTBRANCH}
+        fi
+
+        git checkout -b $FEATUREBRANCH
+
+        # If our checkout succeeds, push it upstream.
+        PWB=$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3,4)
+        if [ "$FEATUREBRANCH" == "$PWB" ]; then
+            echo "Pushing new branch upstream..."
+            git push --set-upstream origin $FEATUREBRANCH
+        fi
+        echo "==========================================================="
+        echo "Ready: ${FEATUREBRANCH}"
+    else
+        echo "Attempting to use a protected branch name. Don't. Do over."
+    fi
+
+exit

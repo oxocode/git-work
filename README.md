@@ -36,8 +36,9 @@ Alternatively, clone this repository into a directory and add it to the `PATH` e
 * [git create-feature](https://github.com/oxocode/git-work/blob/master/man/git-create-feature.md)
 * [git archive-feature](https://github.com/oxocode/git-work/blob/master/man/git-archive-feature.md)
 * git last
-* git merged
-* git notmerged
+* git merged [-r | --remote] [-l | --local] [-lr]
+* git notmerged [-r | --remote] [-l | --local] [-lr]
+* git new [-f | --feature] [-b | --bugfix] [--hotfix]
 
 ## Commands _(otw)_
 
