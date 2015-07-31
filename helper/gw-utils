@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# git-work
+# git-work-helpers.sh
+
+# gw_catch_errors
+#
+# catches all the errors gracefully.
+#
+# Usage:
+# Place `gw_catch_errors` at the beginning of scripts
+gw_catch_errors() {
+    # Will exit script if we would use an uninitialised variable.
+    set -o nounset
+    # Will exit script when a simple command (not a control structure) fails.
+    set -o errexit
+}
+
+# gw_ask question
+#
+# checks the prompt for yes or no responses.
+#
+# Example:
+# gw_ask "Do you wanna do this or that?"
+gw_ask() {
+    while true; do
+        read -p "$1 " yn
+        case $yn in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+# gw_warn message
+#
+# Warns user of potential issue.
+#
+# Example:
+# gw_warn "Fail. Man Down."
+gw_warn() {
+  local red=$(tput setaf 1)
+  local reset=$(tput sgr0)
+  echo -e "${red}$@${reset}"
+}
+
+# gw_info message
+#
+# Writes the given messages in green letters to standard output.
+#
+# Example:
+# gw_info "INFO: "
+gw_info() {
+  local green=$(tput setaf 2)
+  local reset=$(tput sgr0)
+  echo -e "${green}$@${reset}"
+}
+
+# gw_mktemp
+#
+# Makes a temporary file.
+#
+# Example:
+# gw_mktemp <FILENAME>
+gw_mktemp() {
+    mktemp -t "$(basename "$0")".XXX
+}
+
